@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service OrderService {
+    rpc CalculateTotal(OrderRequest) returns (OrderResponse);
+}
+
+message OrderRequest {
+    string name = 1;
+    double price = 2;
+    int32 quantity = 3;
+}
+
+message OrderResponse {
+    double total = 1;
+    double subTotal=2;
+    double discount=3;
+}
