@@ -4,14 +4,19 @@ service OrderService {
     rpc CalculateTotal(OrderRequest) returns (OrderResponse);
 }
 
+// Mensagem que representa um único produto
+message ItemRequest {
+    double price = 1;
+    int32 quantity = 2;
+}
+
+// O pedido recebe uma lista (repeated) de produtos
 message OrderRequest {
-    string name = 1;
-    double price = 2;
-    int32 quantity = 3;
+    repeated ItemRequest items = 1;
 }
 
 message OrderResponse {
     double total = 1;
-    double subTotal=2;
-    double discount=3;
+    double subTotal = 2;
+    double discount = 3;
 }

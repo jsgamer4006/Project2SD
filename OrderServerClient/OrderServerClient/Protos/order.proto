@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+service OrderService {
+    rpc CalculateTotal(OrderRequest) returns (OrderResponse);
+}
+
+option csharp_namespace = "OrderServerClient.Protos";
+// Mensagem que representa um único produto
+message ItemRequest {
+    double price = 1;
+    int32 quantity = 2;
+}
+
+// O pedido recebe uma lista (repeated) de produtos
+message OrderRequest {
+    repeated ItemRequest items = 1;
+}
+
+message OrderResponse {
+    double total = 1;
+    double subTotal = 2;
+    double discount = 3;
+}
