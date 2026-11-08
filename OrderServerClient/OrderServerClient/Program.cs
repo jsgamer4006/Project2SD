@@ -2,18 +2,18 @@ using OrderServerClient.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// A ÚNICA LINHA QUE FALTAVA PARA OS CONTROLLERS ACORDAREM
+builder.Services.AddControllers();
+
+// O TEU CÓDIGO ORIGINAL INTACTO
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-
-
+// O TEU CÓDIGO ORIGINAL INTACTO
+app.MapControllers();
 app.UseAntiforgery();
-
 app.MapStaticAssets();
 
 app.Run();

@@ -19,4 +19,4 @@ message OrderResponse {
     double total = 1;
     double subTotal = 2;
     double discount = 3;
-}
+}   

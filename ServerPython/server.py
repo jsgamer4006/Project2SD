@@ -23,7 +23,7 @@ class Order(Order_pb2_grpc.OrderServiceServicer):
 
 def server():
     server=grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    Order_pb2.add_OrderServiceServicer_to_server(Order(),server)
+    Order_pb2_grpc.add_OrderServiceServicer_to_server(Order(),server)
 
     server.add_insecure_port("[::]:10000")
 

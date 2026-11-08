@@ -13,7 +13,7 @@ namespace OrderServerClient.Repositories
             mutex.Wait();
             try
             {
-                return orders;
+                return orders.ToList();
             }
             finally
             {
@@ -23,22 +23,35 @@ namespace OrderServerClient.Repositories
 
         public static Orders getOrderById(int id)
         {
-            foreach(Orders order in orders)
+            mutex.Wait();
+            try
             {
-                if(order.Id == id) return order;
-            }
-            return null;
+                foreach (Orders order in orders)
+                {
+                    if (order.Id == id) return order;
+                }
+                return null;
+            }finally { mutex.Release(); }
+
+            
                 
         }
 
-        public static void addOrder(Orders order)
+        public static int addOrder(Orders order)
         {
-            mutex.Wait();
-            orders.Add(order);
-            mutex.Release();
+            try
+            {
+                mutex.Wait();
+                if (orders.Any(p => p.Id == order.Id)) return 409;
+                orders.Add(order);
+                return 201  ;
+            }finally { mutex.Release(); }
+           
         }
 
         public static int deleteOrderById(int id ) {
+            if (id < 0) return 400;
+            mutex.Wait();
             try
             {
                 var order = orders.FirstOrDefault(p => p.Id == id);
@@ -54,7 +67,7 @@ namespace OrderServerClient.Repositories
           
         }
 
-        public static int updateOrder(int oldId, Orders newOrder)
+        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal)
         {
             if (String.IsNullOrWhiteSpace(newOrder.Name) || newOrder.Id < 0) return 400;
 
@@ -69,12 +82,31 @@ namespace OrderServerClient.Repositories
                 order.Id= newOrder.Id;
                 order.Name= newOrder.Name;
                 order.orderProducts= newOrder.orderProducts;
+                order.date = DateTime.Now;
+                order.discount= discount;
+                order.subtotal= subtotal;
+                order.total= total;
+
                 return 200;
             }
             finally
             {
                 mutex.Release();
             }
+        }
+        public static void deleteAllOrders()
+        {
+            mutex.Wait();
+            try
+            {
+                orders.Clear();
+            }
+            finally
+            {
+                mutex.Release();
+            }
+            
+            
         }
 
        

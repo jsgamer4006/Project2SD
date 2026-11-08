@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
+using Microsoft.AspNetCore.Mvc;
 using OrderServerClient.Domain;
 using OrderServerClient.Repositories;
 namespace OrderServerClient.Controllers
 {
+    [ApiController]
+    [Route("api/Products")]
     public class ProductController: ControllerBase
     {
        
-        SemaphoreSlim mutex = new SemaphoreSlim(1, 1);
+       
         [HttpGet]
         public ActionResult GetAllProducts()
         {
@@ -30,18 +33,28 @@ namespace OrderServerClient.Controllers
         [HttpPost]
         public  ActionResult createProduct([FromBody] Product product)
         {
-            if (product.id < 0)
+            if (product.id < 0 || String.IsNullOrWhiteSpace(product.name) || product.price<0)
                 return StatusCode(400, "Id Invalid");
-            var myProduct = ProductsRepository.getProductByid(product.id);
-            if (myProduct != null)
-                return StatusCode(409, "This product already exists");
-            ProductsRepository.addProduct(product);
-            return StatusCode(200,"created sucessefully");
+           
+            int status=ProductsRepository.addProduct(product);
+            switch (status)
+            {
+                case 201:
+                    return StatusCode(201, "Product created successfully");
+                case 409:
+                    return StatusCode(409, "Product already exists");
+                default:
+                    return StatusCode(500, "Server Error");
+
+            }
+            
         }
 
         [HttpPut("{id:int}")] // REVER A PARTE DO SWITCH CASE 
         public ActionResult updateProduct(int id, [FromBody] Product product)
         {
+            if (product==null || product.id < 0 || String.IsNullOrWhiteSpace(product.name) || product.price < 0)
+                return StatusCode(400, "Id Invalid");
             int statusCode = ProductsRepository.updateProdutc(id, product);
             switch (statusCode)
             {
@@ -71,15 +84,11 @@ namespace OrderServerClient.Controllers
                 default:
                     return StatusCode(500, "unkown error");
             }
-            
-
         }
         [HttpDelete]
         public ActionResult deleteAllProducts()
         {
-            mutex.WaitAsync();
             ProductsRepository.deleteAllProducts();
-            mutex.Release();
             return StatusCode(200, "Delete sucessefully");
         }
     }

@@ -4,9 +4,6 @@
     public class ProductsRepository
     {
         private readonly static List<Product> products = new List<Product>();
-
-        private readonly static List<Orders> orderes = new List<Orders>();
-
         private readonly static SemaphoreSlim mutex= new SemaphoreSlim(1,1);
 
         public static List<Product> GetProducts()
@@ -14,7 +11,7 @@
             mutex.Wait();
             try
             {
-                return products;
+                return products.ToList();
             }finally {
                 mutex.Release(); 
             }
@@ -56,18 +53,32 @@
 
 
  
-        public static void addProduct(Product p)
+        public static int addProduct(Product p)
         {
             mutex.Wait();
-            products.Add(p);
-            mutex.Release();
+            try
+            {
+                if (products.Any(pro => pro.id == p.id)) return 409;
+                products.Add(p);
+                return 201;
+            }finally { 
+                mutex.Release(); 
+            }
+           
+         
         }
 
         public static void deleteAllProducts()
         {
             mutex.Wait();
-            products.Clear();
-            mutex.Release();
+            try
+            {
+                products.Clear();
+            }
+            finally
+            {
+                mutex.Release();
+            }
         }
 
         public static int updateProdutc(int oldId, Product newProduct)
@@ -75,10 +86,6 @@
             mutex.Wait(); 
             try
             {
-                
-                if (newProduct == null || newProduct.price < 0 || String.IsNullOrWhiteSpace(newProduct.name) || newProduct.id<0) return 400;
-
-                
                 var oldProduct = products.FirstOrDefault(p => p.id == oldId);
                 if (oldProduct == null) return 404;
 

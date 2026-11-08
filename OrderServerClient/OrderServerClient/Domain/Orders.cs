@@ -9,10 +9,10 @@ namespace OrderServerClient.Domain
 
         public List<OrderProduct> orderProducts { get; set; }
 
-        public void AddproductToOrder(OrderProduct product)
-        {
-            this.orderProducts.Add(product);
-        }
+        public double total { get; set; }
+        public double discount { get; set; }
+        public double subtotal { get; set; }
+
 
     }
 }
