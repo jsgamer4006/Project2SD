@@ -86,6 +86,7 @@
             mutex.Wait(); 
             try
             {
+                
                 var oldProduct = products.FirstOrDefault(p => p.id == oldId);
                 if (oldProduct == null) return 404;
 
