@@ -41,7 +41,49 @@
             </form>
             
         </section>
-        
+        <section>
+            <h2>Show all orders</h2>
+            <button type="button" id="showAllOrders"> Show all orders</button>
+            <table id="allOrdersTable">
+                <thead>
+                    <tr>
+                        <th> ID</th>
+                        <th> ClientName</th>
+                        <th> Date</th>
+                        <th> Total</th>
+                        <th> TotalOfProducts</th>
+                    </tr>
+                </thead>
+                <tbody id="listAllOrders">
+
+                </tbody>
+            </table>
+
+        </section>
+        <section>
+            <h2>Show order by id</h2>
+
+            <form>
+                <label for="searchOrderId">OrderId</label>
+
+                <input type="number" id="searchOrderId" min="1" step="1" required />
+                <button type="button" id="showOrderById">Show order by id</button>
+            </form>
+            
+            <table id="OrderTable">
+                <thead>
+                    <tr>
+                        <th> ID</th>
+                        <th> ClientName</th>
+                        <th> Date</th>
+                        <th> Total</th>
+                        <th> TotalOfProducts</th>
+                    </tr>
+                </thead>
+                <tbody id="listOrderById">
+                </tbody>
+            </table>
+        </section>
 
     </main>
     

@@ -58,8 +58,8 @@ namespace OrderServerClient.Controllers
             int statusCode = ProductsRepository.updateProdutc(id, product);
             switch (statusCode)
             {
-                case 200:
-                    return StatusCode(200, "updated sucessefully");
+                case 204:
+                    return StatusCode(204, "updated sucessefully");
                 case 400:
                     return StatusCode(400, "Invalid Values");
                 case 404:
@@ -77,8 +77,8 @@ namespace OrderServerClient.Controllers
             int statusCode = ProductsRepository.deleteProduct(id);
             switch (statusCode)
             {
-                case 200:
-                    return StatusCode(200, "delete sucessefully");
+                case 204:
+                    return StatusCode(204, "delete sucessefully");
                 case 404:
                     return StatusCode(404, "Product not found ");
                 default:
@@ -89,7 +89,7 @@ namespace OrderServerClient.Controllers
         public ActionResult deleteAllProducts()
         {
             ProductsRepository.deleteAllProducts();
-            return StatusCode(200, "Delete sucessefully");
+            return StatusCode(204, "Delete sucessefully");
         }
     }
 }

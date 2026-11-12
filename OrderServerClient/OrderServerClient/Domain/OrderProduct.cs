@@ -5,7 +5,8 @@
         public int IdProduct { get; set; }
         public int quantity { get; set; }
 
-
+        public double price { get; set; }
+        public string name { get; set; } = "";
 
         
     }

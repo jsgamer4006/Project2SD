@@ -50,9 +50,9 @@ namespace OrderServerClient.Controllers
         [HttpPost]
         public async Task<ActionResult> createOrder([FromBody] Orders order)
         {
-            if (order == null || order.Id < 0 || String.IsNullOrWhiteSpace(order.Name) || order.orderProducts.Count==0)
+            if (order == null || order.id < 0 || String.IsNullOrWhiteSpace(order.name) || order.orderProducts.Count==0)
                 return StatusCode(400, "Invalid data");
-
+            order.totalOfProducts = 0;
             try
             {
                 using var channel = GrpcChannel.ForAddress("http://localhost:10000");
@@ -68,7 +68,9 @@ namespace OrderServerClient.Controllers
                         Quantity = item.quantity,
                         Price = product.price
                     });
-
+                    item.name = product.name;
+                    item.price = product.price;
+                    order.totalOfProducts += item.quantity;
                 }
                 var response = await client.CalculateTotalAsync(request);
                 order.total = response.Total;
@@ -101,7 +103,8 @@ namespace OrderServerClient.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> updateOrders(int id, Orders newOrder)
         {
-            if (newOrder == null || newOrder.Id < 0 || String.IsNullOrWhiteSpace(newOrder.Name) || newOrder.orderProducts.Count==0) return StatusCode(400, "Invalid data");
+            if (newOrder == null || newOrder.id < 0 || String.IsNullOrWhiteSpace(newOrder.name) || newOrder.orderProducts.Count==0) return StatusCode(400, "Invalid data");
+            int totalOfProducts = 0;
             try
             {
                 using var channel = GrpcChannel.ForAddress("http://localhost:10000");
@@ -119,14 +122,16 @@ namespace OrderServerClient.Controllers
                         Quantity = item.quantity,
                         Price = product.price
                     });
-
+                    item.name = product.name;
+                    item.price = product.price;
+                    totalOfProducts += item.quantity;
                 }
 
                 var response = await client.CalculateTotalAsync(request);
-                int status =OrdersRepository.updateOrder(id, newOrder,response.Total,response.Discount,response.SubTotal);
+                int status =OrdersRepository.updateOrder(id, newOrder,response.Total,response.Discount,response.SubTotal,totalOfProducts);
                 switch (status) {
-                    case 200:
-                        return StatusCode(200, "Uppdated successfully");
+                    case 204:
+                        return StatusCode(204, "Uppdated successfully");
                     case 400:
                         return StatusCode(400, "Invalid arguments");
                     case 404:
@@ -157,8 +162,8 @@ namespace OrderServerClient.Controllers
             int status=OrdersRepository.deleteOrderById(id);
             switch (status)
             {
-                case 200:
-                    return StatusCode(200, "Deleted sucessfully");
+                case 204:
+                    return StatusCode(204, "Deleted sucessfully");
                 case 400:
                     return StatusCode(400, "Invalid Arguments");
                 case 404:
@@ -172,8 +177,10 @@ namespace OrderServerClient.Controllers
         public ActionResult deleteAllOrders()
         {
             OrdersRepository.deleteAllOrders();
-            return StatusCode(200, "delete sucessfully");
+            return StatusCode(204, "delete sucessfully");
         }
 
     }
+
+    
 }

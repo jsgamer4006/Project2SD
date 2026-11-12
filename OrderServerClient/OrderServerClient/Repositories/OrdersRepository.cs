@@ -28,7 +28,7 @@ namespace OrderServerClient.Repositories
             {
                 foreach (Orders order in orders)
                 {
-                    if (order.Id == id) return order;
+                    if (order.id == id) return order;
                 }
                 return null;
             }finally { mutex.Release(); }
@@ -42,7 +42,7 @@ namespace OrderServerClient.Repositories
             try
             {
                 mutex.Wait();
-                if (orders.Any(p => p.Id == order.Id)) return 409;
+                if (orders.Any(p => p.id == order.id)) return 409;
                 orders.Add(order);
                 return 201  ;
             }finally { mutex.Release(); }
@@ -54,11 +54,11 @@ namespace OrderServerClient.Repositories
             mutex.Wait();
             try
             {
-                var order = orders.FirstOrDefault(p => p.Id == id);
+                var order = orders.FirstOrDefault(p => p.id == id);
                 if (order == null)
                     return 404;
                 orders.Remove(order);
-                return 200;
+                return 204;
             }
             finally
             {
@@ -67,27 +67,27 @@ namespace OrderServerClient.Repositories
           
         }
 
-        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal)
+        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal,double totalOfProducts)
         {
-            if (String.IsNullOrWhiteSpace(newOrder.Name) || newOrder.Id < 0) return 400;
+            if (String.IsNullOrWhiteSpace(newOrder.name) || newOrder.id < 0) return 400;
 
             mutex.Wait();
             try
             {
-                var order = orders.FirstOrDefault(p=>p.Id == oldId);
+                var order = orders.FirstOrDefault(p=>p.id == oldId);
                 if (order == null) return 404;
 
-                if (orders.Any(p => p.Id == newOrder.Id) && newOrder.Id!=oldId) return 409;
+                if (orders.Any(p => p.id == newOrder.id) && newOrder.id!=oldId) return 409;
 
-                order.Id= newOrder.Id;
-                order.Name= newOrder.Name;
+                order.id= newOrder.id;
+                order.name= newOrder.name;
                 order.orderProducts= newOrder.orderProducts;
                 order.date = DateTime.Now;
                 order.discount= discount;
                 order.subtotal= subtotal;
                 order.total= total;
 
-                return 200;
+                return 204;
             }
             finally
             {

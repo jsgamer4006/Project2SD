@@ -53,7 +53,7 @@
                 var product= products.FirstOrDefault(p=> p.id == id);
                 if (product == null) return 404;
                 products.Remove(product);
-                return 200;
+                return 204;
 
             }
             finally
@@ -110,7 +110,7 @@
                 oldProduct.name = newProduct.name;
                 oldProduct.price = newProduct.price;
 
-                return 200;
+                return 204;
             }
             finally
             {
