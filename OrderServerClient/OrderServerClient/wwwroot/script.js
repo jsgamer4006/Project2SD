@@ -27,7 +27,7 @@ async function getJsonFromOrderServer(url) {
             }
         });
     } catch {
-        throw new Error("unable to comunicate with the API server");
+        throw new Error("unable to communicate with the API server");
     }
 
     if (!response.ok) {
@@ -65,7 +65,70 @@ async function postJsonFromOrderServer(url,order) {
 
         });
     } catch {
-        throw new Error("Unable to comunicate with the API server");
+        throw new Error("Unable to communicate with the API server");
+    }
+    if (!response.ok) {
+        switch (response.status) {
+            case 400:
+                throw new Error("Invalid request parameters");
+            case 404:
+                throw new Error("No matching product found");
+            case 409:
+                throw new Error("This order already exists");
+            case 500:
+                throw new Error("The server could not complete the request");
+            default:
+                throw new Error("The request could not be completed");
+        }
+    }
+    return true;
+}
+
+async function putJsonFromOrderServer(url,order) {
+    let response 
+    try {
+        response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(order)
+        });
+    } catch (error) {
+        throw new Error("Unable to cummunicate with the API server");
+    }
+    if (!response.ok) {
+        switch (response.status) {
+            case 400:
+                throw new Error("Invalid request parameters");
+            case 404:
+                throw new Error("No matching product found");
+            case 409:
+                throw new Error("This order already exists");
+            case 500:
+                throw new Error("The server could not complete the request");
+            default:
+                throw new Error("The request could not be completed");
+        }
+    }
+    return true;
+}
+
+
+
+async function deleteJsonFromOrderServer(url) {
+    let response;
+    try {
+        response = await fetch(url,{
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+        })
+    } catch {
+        throw new Error("unable to communicate with the API server");
     }
     if (!response.ok) {
         switch (response.status) {
@@ -85,7 +148,7 @@ async function postJsonFromOrderServer(url,order) {
 }
 
 async function loadAllProducts() {
-   
+   document.getElementById("")
     try {
         const products = await getJsonFromOrderServer(API_PRODUCTS);
         displayProducts(products);
@@ -122,12 +185,49 @@ async function createOrder() {
 
     try {
         await postJsonFromOrderServer(API_ORDERS, order);
-        alert("Order sent");
+        showMessage("Order was created successfully");
     } catch (error) {
-        alert("Error: " + error.message);
+        showMessage(error.message,true)
     } finally {
         const div = document.getElementById("addProducts");
         div.replaceChildren();
+        quantityOfProducts = 0;
+    }
+}
+
+
+async function updateOrderById(event) {
+    event.preventDefault();
+    const oldId = Number(document.getElementById("oldId").value)
+    const newId = Number(document.getElementById("updateOrderId").value)
+    const newName = document.getElementById("updateConsumer").value
+
+    let listProducts = []
+    for (let i = 0; i < quantityOfProducts; i++) {
+        let id = Number(document.getElementById(`updateproductID-${i}`).value);
+        let quantity = Number(document.getElementById(`updateQuantity-${i}`).value);
+        listProducts.push({
+            IdProduct: id,
+            quantity:quantity
+        })
+    }
+    let order = ({
+        id: newId,
+        name: newName,
+        orderProducts: listProducts
+
+    });
+    try {
+        await putJsonFromOrderServer(`${API_ORDERS}/${oldId}`, order);
+        showMessage("order was updated successfully");
+        alert("Order updated");
+    } catch (error) {
+        showMessage(error.message);
+        alert(error.message);
+    } finally {
+        const div = document.getElementById("updateProducts");
+        div.replaceChildren();
+        quantityOfProducts = 0;
     }
 }
 
@@ -138,7 +238,7 @@ function displayProducts(products) {
         const values = [
             product.id,
             product.name,
-            product.price
+          formatPice(product.price)
         ];
         for (const value of values) {
             const cell = document.createElement("td");
@@ -165,8 +265,23 @@ function addRowstoProducts() {
 
 }
 
+
+function addRowsToUpdateProductsinOrder() {
+    const div = document.getElementById("updateProducts");
+
+    let newRow =`<div style="margin-top: 15px;">
+                <label> Product id</label>
+                <input  id="updateproductID-${quantityOfProducts}"type="number" min="1" step="1" required />
+                <label> Quantity</label>
+                <input  id="updateQuantity-${quantityOfProducts}"type="number" min="1" step="1" required />
+                </div>`;
+    div.insertAdjacentHTML('beforeend', newRow);
+    quantityOfProducts++;
+}
+
 async function showAllOrders() {
     try {
+        document.getElementById(TBODY_ALL_ORDERS).replaceChildren();
         const response = await getJsonFromOrderServer(API_ORDERS);
         displayOrders(response, TBODY_ALL_ORDERS);
         showMessage(`${response.length} orders(s) loaded successfully.`);
@@ -184,7 +299,7 @@ function displayOrders(Orders, targetBodyId) {
             order.id,
             order.name,
             order.date,
-            order.total,
+           formatPice(order.total),
             order.totalOfProducts
         ]
         for (const value of values) {
@@ -231,7 +346,7 @@ function addProductDetails(products, id, targetBodyId) {
         const values = [
             product.name,
             product.quantity,
-            product.price
+            formatPice(product.price)
         ];
         for (const value of values) {
             const cell = document.createElement("td");
@@ -263,10 +378,23 @@ async function getOrderById(event) {
         document.getElementById(TBODY_ORDER_BY_ID).replaceChildren();
 
         displayOrders([order], TBODY_ORDER_BY_ID);
+        showMessage("The order was loaded successfully");
     }
     catch (error) {
         document.getElementById(TBODY_ORDER_BY_ID).replaceChildren();
         showMessage(error.message, true);
+    }
+}
+
+async function deleOrderById() {
+    const id = Number(document.getElementById("deleteId").value);
+    try {
+        await deleteJsonFromOrderServer(`${API_ORDERS}/${id}`);
+        showMessage("order was deleted successfully");
+        alert("order deleted");
+    } catch (error) {
+        showMessage("Error to delete Order");
+        alert("Error to delete Order");
     }
 }
 
@@ -275,6 +403,9 @@ async function getOrderById(event) {
 document.getElementById("addRows").addEventListener("click", addRowstoProducts);
 document.getElementById("createOrder").addEventListener("submit", createOrder);
 document.getElementById("showAllOrders").addEventListener("click", showAllOrders);
-document.getElementById("showOrderById").addEventListener("click", getOrderById );
+document.getElementById("showOrderById").addEventListener("click", getOrderById);
+document.getElementById("addRowsToUpdateOrder").addEventListener("click", addRowsToUpdateProductsinOrder);
+document.getElementById("UpdateOrder").addEventListener("click", updateOrderById);
+document.getElementById("deleteButton").addEventListener("click", deleOrderById);
 loadAllProducts();
 

@@ -39,7 +39,7 @@
 
                 </div>
             </form>
-            
+
         </section>
         <section>
             <h2>Show all orders</h2>
@@ -55,7 +55,6 @@
                     </tr>
                 </thead>
                 <tbody id="listAllOrders">
-
                 </tbody>
             </table>
 
@@ -69,7 +68,7 @@
                 <input type="number" id="searchOrderId" min="1" step="1" required />
                 <button type="button" id="showOrderById">Show order by id</button>
             </form>
-            
+
             <table id="OrderTable">
                 <thead>
                     <tr>
@@ -83,6 +82,28 @@
                 <tbody id="listOrderById">
                 </tbody>
             </table>
+        </section>
+        <section>
+            <h2> UpdateOrder</h2>
+            <form id="updateOrder">
+                <label for="OrderId"> OldOrderId</label>
+                <input type="number" id="oldId" min="1" step="1" required />
+                <label for="OrderId"> NewOrderId</label>
+                <input type="number" id="updateOrderId" min="1" step="1" required />
+                <label for="consumer">Name</label>
+                <input type="text" id="updateConsumer" required />
+                <button type="submit" id="UpdateOrder">UpdateOrder</button>
+                <button type="button" id="addRowsToUpdateOrder">Add product</button>
+                <div id="updateProducts">
+
+                </div>
+            </form>
+        </section>
+        <section>
+           <h2> Delete Order by Id</h2>
+            <label for="deleteOrderId"></label>
+            <input type="number" id="deleteId" min="1" step="1" required></input>
+            <button type="button" id="deleteButton"> Delete order</button>
         </section>
 
     </main>
