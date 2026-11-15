@@ -9,7 +9,8 @@
         new Product { id = 2, name = "Teclado Mecânico", price = 75.50 },
         new Product { id = 3, name = "Monitor 165Hz", price = 199.99 },
         new Product { id = 4, name = "SSD Kioxia 1TB", price = 60.00 },
-        new Product { id = 5, name = "Tapete XXL", price = 15.00 }
+        new Product { id = 5, name = "Tapete XXL", price = 15.00 },
+        new Product{id=6,name="Rato gamer xpto",price=100.00}
 
         };
         
@@ -92,7 +93,7 @@
             }
         }
 
-        public static int updateProdutc(int oldId, Product newProduct)
+        public static int updateProduct(int oldId, Product newProduct)
         {
             mutex.Wait(); 
             try

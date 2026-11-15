@@ -7,7 +7,7 @@ const TBODY_ALL_ORDERS = "listAllOrders";
 const TBODY_ORDER_BY_ID = "listOrderById";
 
 
-let quantityOfProducts=0
+let quantityOfProducts=0 // diz o numero de linhas para adicionar produtos a uma encomenda o utilizador usou 
 function showMessage(message, isError = false) {
     messageElement.textContent = message;
     messageElement.className = isError ? "Error" : "sucess";

@@ -37,6 +37,38 @@ namespace OrderServerClient.Repositories
                 
         }
 
+      public static List<OrderProduct> getOrdersClean(Orders order)
+        {
+            Dictionary<int, int> map = new Dictionary<int, int>();
+            foreach (OrderProduct orderProduct in order.orderProducts)
+            {
+                if (!map.ContainsKey(orderProduct.IdProduct))
+                {
+                    map.Add(orderProduct.IdProduct, orderProduct.quantity);
+                }
+                else
+                {
+                    map[orderProduct.IdProduct] += orderProduct.quantity;
+                }
+            }
+            List<OrderProduct> newOrderProducts = new List<OrderProduct>();
+            foreach (KeyValuePair<int, int> item in map)
+            {
+                OrderProduct productForList = new OrderProduct();
+                OrderProduct product = order.orderProducts.FirstOrDefault(p => p.IdProduct == item.Key);
+                if (product == null)
+                    continue;
+                productForList.IdProduct = item.Key;
+                productForList.quantity = item.Value;
+                productForList.name = product.name;
+                productForList.price = product.price;
+                newOrderProducts.Add(productForList);
+            }
+            return newOrderProducts;
+     
+
+        }
+
         public static int addOrder(Orders order)
         {
             try
@@ -67,7 +99,7 @@ namespace OrderServerClient.Repositories
           
         }
 
-        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal,double totalOfProducts)
+        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal,int totalOfProducts)
         {
             if (String.IsNullOrWhiteSpace(newOrder.name) || newOrder.id < 0) return 400;
 
@@ -79,6 +111,7 @@ namespace OrderServerClient.Repositories
 
                 if (orders.Any(p => p.id == newOrder.id) && newOrder.id!=oldId) return 409;
 
+                newOrder.orderProducts = getOrdersClean(newOrder);
                 order.id= newOrder.id;
                 order.name= newOrder.name;
                 order.orderProducts= newOrder.orderProducts;
@@ -86,7 +119,8 @@ namespace OrderServerClient.Repositories
                 order.discount= discount;
                 order.subtotal= subtotal;
                 order.total= total;
-
+                order.totalOfProducts = totalOfProducts;
+                
                 return 204;
             }
             finally

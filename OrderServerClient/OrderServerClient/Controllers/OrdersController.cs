@@ -16,20 +16,20 @@ namespace OrderServerClient.Controllers
     
     [ApiController]
     [Route("api/Orders")]
-    public class OrdersControler: ControllerBase
+    public class OrdersController: ControllerBase
     {
         
       
-        private readonly ILogger<OrdersControler> _logger;
+        private readonly ILogger<OrdersController> _logger;
 
-        public OrdersControler(ILogger<OrdersControler> logger)
+        public OrdersController(ILogger<OrdersController> logger)
         {
             _logger=logger;
         }
         
 
         [HttpGet]
-        public ActionResult getAllOrderes()
+        public ActionResult getAllOrders()
         {
 
             return StatusCode(200, OrdersRepository.getAllOrders());
@@ -77,6 +77,7 @@ namespace OrderServerClient.Controllers
                 order.subtotal=response.SubTotal;
                 order.discount = response.Discount;
                 order.date=DateTime.Now;
+                order.orderProducts= OrdersRepository.getOrdersClean(order);
                 int status= OrdersRepository.addOrder(order);
                 switch (status)
                 {
@@ -85,7 +86,7 @@ namespace OrderServerClient.Controllers
                     case 409:
                         return StatusCode(409, "This order already exists ");
                     default:
-                        return StatusCode(500, "Unknown erro");
+                        return StatusCode(500, "Unknown error");
                 }
 
             }
@@ -116,7 +117,7 @@ namespace OrderServerClient.Controllers
                         return StatusCode(400, "Quantity must be positive");
 
                     var product = ProductsRepository.getProductByid(item.IdProduct);
-                    if (product == null) return StatusCode(404, "Product doesn't exists");
+                    if (product == null) return StatusCode(404, "Product doesn't exist");
                     request.Items.Add(new ItemRequest
                     {
                         Quantity = item.quantity,
@@ -131,15 +132,15 @@ namespace OrderServerClient.Controllers
                 int status =OrdersRepository.updateOrder(id, newOrder,response.Total,response.Discount,response.SubTotal,totalOfProducts);
                 switch (status) {
                     case 204:
-                        return StatusCode(204, "Uppdated successfully");
+                        return StatusCode(204);
                     case 400:
                         return StatusCode(400, "Invalid arguments");
                     case 404:
-                        return StatusCode(404, "Order doesn't exists");
+                        return StatusCode(404, "Order doesn't exist");
                     case 409:
-                        return StatusCode(409, "Conflit with Orders");
+                        return StatusCode(409, "Conflict with Orders");
                     default:
-                        return StatusCode(500, "unknown erro");
+                        return StatusCode(500, "Unknown error");
                     
                 }
 
@@ -163,7 +164,7 @@ namespace OrderServerClient.Controllers
             switch (status)
             {
                 case 204:
-                    return StatusCode(204, "Deleted sucessfully");
+                    return StatusCode(204);
                 case 400:
                     return StatusCode(400, "Invalid Arguments");
                 case 404:
@@ -177,7 +178,7 @@ namespace OrderServerClient.Controllers
         public ActionResult deleteAllOrders()
         {
             OrdersRepository.deleteAllOrders();
-            return StatusCode(204, "delete sucessfully");
+            return StatusCode(204);
         }
 
     }
