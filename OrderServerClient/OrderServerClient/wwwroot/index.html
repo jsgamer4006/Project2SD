@@ -50,6 +50,8 @@
                         <th> ID</th>
                         <th> ClientName</th>
                         <th> Date</th>
+                        <th> Subtotal</th>
+                        <th> Discount</th>
                         <th> Total</th>
                         <th> TotalOfProducts</th>
                     </tr>
@@ -62,11 +64,11 @@
         <section>
             <h2>Show order by id</h2>
 
-            <form>
+            <form id="showOrderById">
                 <label for="searchOrderId">OrderId</label>
 
                 <input type="number" id="searchOrderId" min="1" step="1" required />
-                <button type="button" id="showOrderById">Show order by id</button>
+                <button type="submit">Show order by id</button>
             </form>
 
             <table id="OrderTable">
@@ -75,6 +77,8 @@
                         <th> ID</th>
                         <th> ClientName</th>
                         <th> Date</th>
+                        <th> Subtotal</th>
+                        <th> Discount</th>
                         <th> Total</th>
                         <th> TotalOfProducts</th>
                     </tr>
@@ -101,9 +105,12 @@
         </section>
         <section>
            <h2> Delete Order by Id</h2>
-            <label for="deleteOrderId"></label>
-            <input type="number" id="deleteId" min="1" step="1" required></input>
-            <button type="button" id="deleteButton"> Delete order</button>
+           <form id="deleteButton">
+               <label for="deleteOrderId"></label>
+               <input type="number" id="deleteId" min="1" step="1" required/>
+               <button type="submit" > Delete order</button>
+           </form>
+            
         </section>
 
     </main>

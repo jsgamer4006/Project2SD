@@ -39,7 +39,7 @@ namespace OrderServerClient.Controllers
         public ActionResult getOrderById(int id)
         {
 
-            if (id < 0) return StatusCode(400,"Invalid Id");
+            if (id < 0 ) return StatusCode(400,"Invalid Id");
            
            var order=OrdersRepository.getOrderById(id);
             if (order == null) return StatusCode(404, "Order not found");
@@ -48,11 +48,11 @@ namespace OrderServerClient.Controllers
 
         }
         [HttpPost]
-        public async Task<ActionResult> createOrder([FromBody] Orders order)
+        public async Task<ActionResult> createOrder([FromBody] Order order)
         {
             if (order == null || order.id < 0 || String.IsNullOrWhiteSpace(order.name) || order.orderProducts.Count==0)
                 return StatusCode(400, "Invalid data");
-            order.totalOfProducts = 0;
+           
             try
             {
                 using var channel = GrpcChannel.ForAddress("http://localhost:10000");
@@ -70,7 +70,7 @@ namespace OrderServerClient.Controllers
                     });
                     item.name = product.name;
                     item.price = product.price;
-                    order.totalOfProducts += item.quantity;
+                   
                 }
                 var response = await client.CalculateTotalAsync(request);
                 order.total = response.Total;
@@ -78,6 +78,7 @@ namespace OrderServerClient.Controllers
                 order.discount = response.Discount;
                 order.date=DateTime.Now;
                 order.orderProducts= OrdersRepository.getOrdersClean(order);
+                order.totalOfProducts = order.orderProducts.Sum(p => p.quantity);
                 int status= OrdersRepository.addOrder(order);
                 switch (status)
                 {
@@ -102,10 +103,10 @@ namespace OrderServerClient.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> updateOrders(int id, Orders newOrder)
+        public async Task<ActionResult> updateOrders(int id, Order newOrder)
         {
             if (newOrder == null || newOrder.id < 0 || String.IsNullOrWhiteSpace(newOrder.name) || newOrder.orderProducts.Count==0) return StatusCode(400, "Invalid data");
-            int totalOfProducts = 0;
+            
             try
             {
                 using var channel = GrpcChannel.ForAddress("http://localhost:10000");
@@ -125,11 +126,14 @@ namespace OrderServerClient.Controllers
                     });
                     item.name = product.name;
                     item.price = product.price;
-                    totalOfProducts += item.quantity;
+
                 }
 
                 var response = await client.CalculateTotalAsync(request);
-                int status =OrdersRepository.updateOrder(id, newOrder,response.Total,response.Discount,response.SubTotal,totalOfProducts);
+                newOrder.total = response.Total;
+                newOrder.discount = response.Discount;
+                newOrder.subtotal = response.SubTotal;
+                int status =OrdersRepository.updateOrder(id, newOrder);
                 switch (status) {
                     case 204:
                         return StatusCode(204);

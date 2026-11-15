@@ -30,66 +30,7 @@ namespace OrderServerClient.Controllers
             return StatusCode(200, product);
         }
 
-        [HttpPost]
-        public  ActionResult createProduct([FromBody] Product product)
-        {
-            if (product.id < 0 || String.IsNullOrWhiteSpace(product.name) || product.price<0)
-                return StatusCode(400, "Invalid arguments");
-           
-            int status=ProductsRepository.addProduct(product);
-            switch (status)
-            {
-                case 201:
-                    return StatusCode(201, "Product created successfully");
-                case 409:
-                    return StatusCode(409, "Product already exists");
-                default:
-                    return StatusCode(500, "Server Error");
-
-            }
-            
-        }
-
-        [HttpPut("{id:int}")] // REVER A PARTE DO SWITCH CASE 
-        public ActionResult updateProduct(int id, [FromBody] Product product)
-        {
-            if (product==null || product.id < 0 || String.IsNullOrWhiteSpace(product.name) || product.price < 0)
-                return StatusCode(400, "Id Invalid");
-            int statusCode = ProductsRepository.updateProduct(id, product);
-            switch (statusCode)
-            {
-                case 204:
-                    return StatusCode(204);
-                case 400:
-                    return StatusCode(400, "Invalid Values");
-                case 404:
-                    return StatusCode(404, "Product not found");
-                case 409:
-                    return StatusCode(409, "This product already exists");
-                default:
-                    return StatusCode(500, "Unknown error");
-            }
-        }
-        // REVER A PARTE DO SWITCH CASE 
-        [HttpDelete("{id:int}")]
-        public ActionResult deleteProductById(int id)
-        {
-            int statusCode = ProductsRepository.deleteProduct(id);
-            switch (statusCode)
-            {
-                case 204:
-                    return StatusCode(204);
-                case 404:
-                    return StatusCode(404, "Product not found ");
-                default:
-                    return StatusCode(500, "Unknown error");
-            }
-        }
-        [HttpDelete]
-        public ActionResult deleteAllProducts()
-        {
-            ProductsRepository.deleteAllProducts();
-            return StatusCode(204);
-        }
+       
+        
     }
 }

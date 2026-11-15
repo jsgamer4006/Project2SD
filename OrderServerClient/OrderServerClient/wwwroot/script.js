@@ -35,7 +35,7 @@ async function getJsonFromOrderServer(url) {
             case 400:
                 throw new Error("Invalid request parameters");
             case 404:
-                throw new Error("No matching product found");
+                throw new Error("Not found");
             case 500:
                 throw new Error("The server could not complete the request");
             default:
@@ -72,7 +72,7 @@ async function postJsonFromOrderServer(url,order) {
             case 400:
                 throw new Error("Invalid request parameters");
             case 404:
-                throw new Error("No matching product found");
+                throw new Error("Order not found");
             case 409:
                 throw new Error("This order already exists");
             case 500:
@@ -103,7 +103,7 @@ async function putJsonFromOrderServer(url,order) {
             case 400:
                 throw new Error("Invalid request parameters");
             case 404:
-                throw new Error("No matching product found");
+                throw new Error("Order not found");
             case 409:
                 throw new Error("This order already exists");
             case 500:
@@ -135,7 +135,7 @@ async function deleteJsonFromOrderServer(url) {
             case 400:
                 throw new Error("Invalid request parameters");
             case 404:
-                throw new Error("No matching product found");
+                throw new Error("Order not found");
             case 409:
                 throw new Error("This order already exists");
             case 500:
@@ -186,12 +186,15 @@ async function createOrder() {
     try {
         await postJsonFromOrderServer(API_ORDERS, order);
         showMessage("Order was created successfully");
+        alert("Order was created successfully")
     } catch (error) {
-        showMessage(error.message,true)
+        showMessage(error.message, true);
+        alert(error.message);
     } finally {
         const div = document.getElementById("addProducts");
         div.replaceChildren();
         quantityOfProducts = 0;
+        document.getElementById("createOrder").reset();
     }
 }
 
@@ -228,6 +231,7 @@ async function updateOrderById(event) {
         const div = document.getElementById("updateProducts");
         div.replaceChildren();
         quantityOfProducts = 0;
+        document.getElementById("updateOrder").reset();
     }
 }
 
@@ -285,9 +289,11 @@ async function showAllOrders() {
         const response = await getJsonFromOrderServer(API_ORDERS);
         displayOrders(response, TBODY_ALL_ORDERS);
         showMessage(`${response.length} orders(s) loaded successfully.`);
+        alert(`${response.length} orders(s) loaded successfully.`);
     } catch (error) {
         document.getElementById("allOrdersTable").replaceChildren
-        showMessage(error.message, true)
+        showMessage(error.message, true);
+        alert(error.message);
     }
 }
 
@@ -295,11 +301,13 @@ function displayOrders(Orders, targetBodyId) {
     const table = document.getElementById(targetBodyId);
     for (const order of Orders){
         const row = document.createElement("tr");
-        const values= [
+        const values = [
             order.id,
             order.name,
             order.date,
-           formatPice(order.total),
+            formatPice(order.subtotal),
+            formatPice(order.discount),
+            formatPice(order.total),
             order.totalOfProducts
         ]
         for (const value of values) {
@@ -379,22 +387,31 @@ async function getOrderById(event) {
 
         displayOrders([order], TBODY_ORDER_BY_ID);
         showMessage("The order was loaded successfully");
+        alert("The order was loaded successfully")
     }
     catch (error) {
         document.getElementById(TBODY_ORDER_BY_ID).replaceChildren();
         showMessage(error.message, true);
+        alert(error.message);
+    }
+    finally {
+        document.getElementById("showOrderById").reset();
     }
 }
 
-async function deleOrderById() {
+async function deleOrderById(event) {
+    event.preventDefault();
     const id = Number(document.getElementById("deleteId").value);
     try {
         await deleteJsonFromOrderServer(`${API_ORDERS}/${id}`);
         showMessage("order was deleted successfully");
         alert("order deleted");
     } catch (error) {
-        showMessage("Error to delete Order");
-        alert("Error to delete Order");
+        showMessage(error.message);
+        alert(error.message);
+    }
+    finally {
+        document.getElementById("deleteButton").reset();
     }
 }
 
@@ -403,9 +420,9 @@ async function deleOrderById() {
 document.getElementById("addRows").addEventListener("click", addRowstoProducts);
 document.getElementById("createOrder").addEventListener("submit", createOrder);
 document.getElementById("showAllOrders").addEventListener("click", showAllOrders);
-document.getElementById("showOrderById").addEventListener("click", getOrderById);
+document.getElementById("showOrderById").addEventListener("submit", getOrderById);
 document.getElementById("addRowsToUpdateOrder").addEventListener("click", addRowsToUpdateProductsinOrder);
-document.getElementById("UpdateOrder").addEventListener("click", updateOrderById);
-document.getElementById("deleteButton").addEventListener("click", deleOrderById);
+document.getElementById("updateOrder").addEventListener("submit", updateOrderById);
+document.getElementById("deleteButton").addEventListener("submit", deleOrderById);
 loadAllProducts();
 

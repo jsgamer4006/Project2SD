@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
+﻿
 using OrderServerClient.Domain;
 namespace OrderServerClient.Repositories
 {
     public class OrdersRepository
     {
-        private readonly static List<Orders> orders = new List<Orders>();
+        private readonly static List<Order> orders = new List<Order>();
 
         private readonly static SemaphoreSlim mutex= new SemaphoreSlim(1,1);
 
-        public static List<Orders> getAllOrders()
+        public static List<Order> getAllOrders()
         {
             mutex.Wait();
             try
@@ -21,23 +21,20 @@ namespace OrderServerClient.Repositories
             }
         }
 
-        public static Orders getOrderById(int id)
+        public static Order getOrderById(int id)
         {
             mutex.Wait();
             try
             {
-                foreach (Orders order in orders)
-                {
-                    if (order.id == id) return order;
-                }
-                return null;
+                return orders.FirstOrDefault(o => o.id == id);
+                
             }finally { mutex.Release(); }
 
             
                 
         }
 
-      public static List<OrderProduct> getOrdersClean(Orders order)
+      public static List<OrderProduct> getOrdersClean(Order order)
         {
             Dictionary<int, int> map = new Dictionary<int, int>();
             foreach (OrderProduct orderProduct in order.orderProducts)
@@ -69,11 +66,12 @@ namespace OrderServerClient.Repositories
 
         }
 
-        public static int addOrder(Orders order)
+        public static int addOrder(Order order)
         {
+            mutex.Wait();
             try
             {
-                mutex.Wait();
+               
                 if (orders.Any(p => p.id == order.id)) return 409;
                 orders.Add(order);
                 return 201  ;
@@ -99,7 +97,7 @@ namespace OrderServerClient.Repositories
           
         }
 
-        public static int updateOrder(int oldId, Orders newOrder,double total, double discount, double subtotal,int totalOfProducts)
+        public static int updateOrder(int oldId, Order newOrder)
         {
             if (String.IsNullOrWhiteSpace(newOrder.name) || newOrder.id < 0) return 400;
 
@@ -115,11 +113,10 @@ namespace OrderServerClient.Repositories
                 order.id= newOrder.id;
                 order.name= newOrder.name;
                 order.orderProducts= newOrder.orderProducts;
-                order.date = DateTime.Now;
-                order.discount= discount;
-                order.subtotal= subtotal;
-                order.total= total;
-                order.totalOfProducts = totalOfProducts;
+                order.discount= newOrder.discount;
+                order.subtotal= newOrder.subtotal;
+                order.total= newOrder.total;
+                order.totalOfProducts = order.totalOfProducts = order.orderProducts.Sum(p => p.quantity); 
                 
                 return 204;
             }

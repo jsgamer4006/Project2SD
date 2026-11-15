@@ -1,7 +1,7 @@
 ﻿
 namespace OrderServerClient.Domain
 {
-    public class Orders
+    public class Order
     {
         public int id { get; set; }
         public string name { get; set; }
